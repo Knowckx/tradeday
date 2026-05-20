@@ -5,23 +5,26 @@ import "time"
 const DateLayout = "2006-01-02"
 
 // Date 表示一个日期字符串，固定格式为 2006-01-02。
-type Date = string
+type Date string
 
-// NormalizeDate 将日期规范化为标准的 2006-01-02 格式。
-func NormalizeDate(day Date) (Date, error) {
-	parsedDate, err := parseDateInLocation(day, time.UTC)
-	if err != nil {
-		return "", err
+// ToCalendarDate 对日期做预检查并转换为内部日期对象。
+func (day Date) ToCalendarDate(location *time.Location) (*CalendarDate, error) {
+	if len(day) != len(DateLayout) {
+		return nil, NewInvalidDateFormatError()
 	}
 
-	return Date(parsedDate.Format(DateLayout)), nil
-}
-
-func parseDateInLocation(day Date, location *time.Location) (time.Time, error) {
-	parsedDate, err := time.ParseInLocation(DateLayout, string(day), location)
+	parsedDay, err := time.ParseInLocation(DateLayout, string(day), location)
 	if err != nil {
-		return time.Time{}, NewInvalidDateFormatError()
+		return nil, NewInvalidDateFormatError()
 	}
 
-	return parsedDate, nil
+	normalizedDay := Date(parsedDay.Format(DateLayout))
+	if normalizedDay != day {
+		return nil, NewInvalidDateFormatError()
+	}
+
+	return &CalendarDate{
+		date: normalizedDay,
+		time: parsedDay,
+	}, nil
 }

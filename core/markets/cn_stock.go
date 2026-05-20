@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	cnStockMinYear = 2024
+	cnStockMinYear = 2015
 	cnStockMaxYear = 2026
 )
 
@@ -22,26 +22,40 @@ func NewCNStock() base.Calendar {
 	return &cnStock{}
 }
 
+// newCNStockDate 创建 A 股市场可接受的日期对象。
+func newCNStockDate(day base.Date) (*base.CalendarDate, error) {
+	calendarDay, err := day.ToCalendarDate(cnStockLocation)
+	if err != nil {
+		return nil, err
+	}
+
+	if !calendarDay.IsSupportedYear(cnStockMinYear, cnStockMaxYear) {
+		return nil, base.NewDateOutOfRangeError()
+	}
+
+	return calendarDay, nil
+}
+
 // IsTradeDay 判断给定日期是否为交易日。
 func (c *cnStock) IsTradeDay(day base.Date) (bool, error) {
-	normalizedDay, parsedDay, err := parseCNStockDate(day)
+	calendarDay, err := newCNStockDate(day)
 	if err != nil {
 		return false, err
 	}
 
-	if !isSupportedCNStockDate(parsedDay) {
-		return false, base.NewDateOutOfRangeError()
-	}
+	return c.isTradeDay(calendarDay)
+}
 
-	if _, ok := data.CNStockOpenDays[string(normalizedDay)]; ok {
+func (c *cnStock) isTradeDay(day *base.CalendarDate) (bool, error) {
+	if _, ok := data.CNStockOpenDays[day.Date()]; ok {
 		return true, nil
 	}
 
-	if isWeekend(parsedDay) {
+	if day.IsWeekend() {
 		return false, nil
 	}
 
-	if _, ok := data.CNStockClosedDays[string(normalizedDay)]; ok {
+	if _, ok := data.CNStockClosedDays[day.Date()]; ok {
 		return false, nil
 	}
 
@@ -50,80 +64,57 @@ func (c *cnStock) IsTradeDay(day base.Date) (bool, error) {
 
 // ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
 func (c *cnStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
-	_, startDay, err := parseCNStockDate(start)
+	startDay, err := newCNStockDate(start)
 	if err != nil {
 		return nil, err
 	}
 
-	_, endDay, err := parseCNStockDate(end)
+	endDay, err := newCNStockDate(end)
 	if err != nil {
 		return nil, err
 	}
 
-	if startDay.After(endDay) {
+	if startDay.Time().After(endDay.Time()) {
 		return nil, base.NewInvalidDateRangeError()
 	}
 
-	if !isSupportedCNStockDate(startDay) || !isSupportedCNStockDate(endDay) {
-		return nil, base.NewDateOutOfRangeError()
-	}
-
-	tradeDays := make([]base.Date, 0)
-	for current := startDay; !current.After(endDay); current = current.AddDate(0, 0, 1) {
-		currentDate := base.Date(current.Format(base.DateLayout))
-		isTradeDay, checkErr := c.IsTradeDay(currentDate)
-		if checkErr != nil {
-			return nil, checkErr
-		}
-
-		if isTradeDay {
-			tradeDays = append(tradeDays, currentDate)
-		}
-	}
-
-	return tradeDays, nil
+	return listTradeDaysInRange(
+		startDay.Time(),
+		endDay.Time(),
+		newCNStockDateFromTime,
+		c.isTradeDay,
+	)
 }
 
 // OffsetTradeDay 返回给定日期前后第 N 个交易日。
 func (c *cnStock) OffsetTradeDay(day base.Date, offset int) (base.Date, error) {
-	_, currentDay, err := parseCNStockDate(day)
+	calendarDay, err := newCNStockDate(day)
 	if err != nil {
 		return "", err
 	}
 
-	if !isSupportedCNStockDate(currentDay) {
-		return "", base.NewDateOutOfRangeError()
-	}
-
-	if offset == 0 {
-		return "", base.NewInvalidOffsetError()
-	}
-
-	step := 1
-	if offset < 0 {
-		step = -1
-		offset = -offset
-	}
-
-	for offset > 0 {
-		currentDay = currentDay.AddDate(0, 0, step)
-		if !isSupportedCNStockDate(currentDay) {
-			return "", base.NewDateOutOfRangeError()
-		}
-
-		currentDate := base.Date(currentDay.Format(base.DateLayout))
-		isTradeDay, checkErr := c.IsTradeDay(currentDate)
-		if checkErr != nil {
-			return "", checkErr
-		}
-
-		if isTradeDay {
-			offset--
-		}
-	}
-
-	return base.Date(currentDay.Format(base.DateLayout)), nil
+	return offsetTradeDayFromTime(
+		calendarDay.Time(),
+		offset,
+		newCNStockDateFromTime,
+		c.isTradeDay,
+	)
 }
+
+
+
+// newCNStockDateFromTime 为内部循环场景构造 A 股日期对象。
+func newCNStockDateFromTime(day time.Time) (*base.CalendarDate, error) {
+	cnStockDay := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, cnStockLocation)
+	calendarDay := base.NewCalendarDateFromTime(cnStockDay)
+	if !calendarDay.IsSupportedYear(cnStockMinYear, cnStockMaxYear) {
+		return nil, base.NewDateOutOfRangeError()
+	}
+
+	return calendarDay, nil
+}
+
+
 
 // PrevTradeDay 返回给定日期的前一个交易日。
 func (c *cnStock) PrevTradeDay(day base.Date) (base.Date, error) {
@@ -133,28 +124,4 @@ func (c *cnStock) PrevTradeDay(day base.Date) (base.Date, error) {
 // NextTradeDay 返回给定日期的后一个交易日。
 func (c *cnStock) NextTradeDay(day base.Date) (base.Date, error) {
 	return c.OffsetTradeDay(day, 1)
-}
-
-func parseCNStockDate(day base.Date) (base.Date, time.Time, error) {
-	normalizedDay, err := base.NormalizeDate(day)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-
-	parsedDay, err := time.ParseInLocation(base.DateLayout, string(normalizedDay), cnStockLocation)
-	if err != nil {
-		return "", time.Time{}, base.NewInvalidDateFormatError()
-	}
-
-	return normalizedDay, parsedDay, nil
-}
-
-func isWeekend(day time.Time) bool {
-	weekday := day.Weekday()
-	return weekday == time.Saturday || weekday == time.Sunday
-}
-
-func isSupportedCNStockDate(day time.Time) bool {
-	year := day.Year()
-	return year >= cnStockMinYear && year <= cnStockMaxYear
 }
