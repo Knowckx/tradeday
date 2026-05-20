@@ -8,10 +8,13 @@ type Calendar interface {
 	// 当日期格式非法或超出该日历支持范围时，返回 error。
 	IsTradeDay(day Date) (bool, error)
 
-	// ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
-	// start 和 end 进入实现后都会先被规范化。
-	// 当日期格式非法、日期区间非法或超出该日历支持范围时，返回 error。
-	ListTradeDays(start, end Date) ([]Date, error)
+	// PrevTradeDay 返回给定日期的前一个交易日。
+	// day 进入实现后会先被规范化，且本身不必是交易日。
+	PrevTradeDay(day Date) (Date, error)
+
+	// NextTradeDay 返回给定日期的后一个交易日。
+	// day 进入实现后会先被规范化，且本身不必是交易日。
+	NextTradeDay(day Date) (Date, error)
 
 	// OffsetTradeDay 返回给定日期前后第 N 个交易日。
 	// day 进入实现后会先被规范化，且本身不必是交易日。
@@ -20,11 +23,12 @@ type Calendar interface {
 	// offset == 0 返回 error。
 	OffsetTradeDay(day Date, offset int) (Date, error)
 
-	// PrevTradeDay 返回给定日期的前一个交易日。
-	// day 进入实现后会先被规范化，且本身不必是交易日。
-	PrevTradeDay(day Date) (Date, error)
+	// ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
+	// start 和 end 进入实现后都会先被规范化。
+	// 当日期格式非法、日期区间非法或超出该日历支持范围时，返回 error。
+	ListTradeDays(start, end Date) ([]Date, error)
 
-	// NextTradeDay 返回给定日期的后一个交易日。
-	// day 进入实现后会先被规范化，且本身不必是交易日。
-	NextTradeDay(day Date) (Date, error)
+
+
+
 }
