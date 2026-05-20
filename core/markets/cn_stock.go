@@ -1,8 +1,9 @@
-package core
+package markets
 
 import (
 	"time"
 
+	"github.com/Knowckx/tradeday/core/base"
 	"github.com/Knowckx/tradeday/core/data"
 )
 
@@ -16,20 +17,20 @@ var cnStockLocation = time.FixedZone("CST", 8*60*60)
 // cnStock 表示中国 A 股市场日历。
 type cnStock struct{}
 
-// newCNStock 创建中国 A 股市场日历。
-func newCNStock() *cnStock {
+// NewCNStock 创建中国 A 股市场日历。
+func NewCNStock() base.Calendar {
 	return &cnStock{}
 }
 
 // IsTradeDay 判断给定日期是否为交易日。
-func (c *cnStock) IsTradeDay(day Date) (bool, error) {
+func (c *cnStock) IsTradeDay(day base.Date) (bool, error) {
 	normalizedDay, parsedDay, err := parseCNStockDate(day)
 	if err != nil {
 		return false, err
 	}
 
 	if !isSupportedCNStockDate(parsedDay) {
-		return false, newDateOutOfRangeError()
+		return false, base.NewDateOutOfRangeError()
 	}
 
 	if _, ok := data.CNStockOpenDays[string(normalizedDay)]; ok {
@@ -48,7 +49,7 @@ func (c *cnStock) IsTradeDay(day Date) (bool, error) {
 }
 
 // ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
-func (c *cnStock) ListTradeDays(start, end Date) ([]Date, error) {
+func (c *cnStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
 	_, startDay, err := parseCNStockDate(start)
 	if err != nil {
 		return nil, err
@@ -60,16 +61,16 @@ func (c *cnStock) ListTradeDays(start, end Date) ([]Date, error) {
 	}
 
 	if startDay.After(endDay) {
-		return nil, newInvalidDateRangeError()
+		return nil, base.NewInvalidDateRangeError()
 	}
 
 	if !isSupportedCNStockDate(startDay) || !isSupportedCNStockDate(endDay) {
-		return nil, newDateOutOfRangeError()
+		return nil, base.NewDateOutOfRangeError()
 	}
 
-	tradeDays := make([]Date, 0)
+	tradeDays := make([]base.Date, 0)
 	for current := startDay; !current.After(endDay); current = current.AddDate(0, 0, 1) {
-		currentDate := Date(current.Format(DateLayout))
+		currentDate := base.Date(current.Format(base.DateLayout))
 		isTradeDay, checkErr := c.IsTradeDay(currentDate)
 		if checkErr != nil {
 			return nil, checkErr
@@ -84,18 +85,18 @@ func (c *cnStock) ListTradeDays(start, end Date) ([]Date, error) {
 }
 
 // OffsetTradeDay 返回给定日期前后第 N 个交易日。
-func (c *cnStock) OffsetTradeDay(day Date, offset int) (Date, error) {
+func (c *cnStock) OffsetTradeDay(day base.Date, offset int) (base.Date, error) {
 	_, currentDay, err := parseCNStockDate(day)
 	if err != nil {
 		return "", err
 	}
 
 	if !isSupportedCNStockDate(currentDay) {
-		return "", newDateOutOfRangeError()
+		return "", base.NewDateOutOfRangeError()
 	}
 
 	if offset == 0 {
-		return "", newInvalidOffsetError()
+		return "", base.NewInvalidOffsetError()
 	}
 
 	step := 1
@@ -107,10 +108,10 @@ func (c *cnStock) OffsetTradeDay(day Date, offset int) (Date, error) {
 	for offset > 0 {
 		currentDay = currentDay.AddDate(0, 0, step)
 		if !isSupportedCNStockDate(currentDay) {
-			return "", newDateOutOfRangeError()
+			return "", base.NewDateOutOfRangeError()
 		}
 
-		currentDate := Date(currentDay.Format(DateLayout))
+		currentDate := base.Date(currentDay.Format(base.DateLayout))
 		isTradeDay, checkErr := c.IsTradeDay(currentDate)
 		if checkErr != nil {
 			return "", checkErr
@@ -121,28 +122,28 @@ func (c *cnStock) OffsetTradeDay(day Date, offset int) (Date, error) {
 		}
 	}
 
-	return Date(currentDay.Format(DateLayout)), nil
+	return base.Date(currentDay.Format(base.DateLayout)), nil
 }
 
 // PrevTradeDay 返回给定日期的前一个交易日。
-func (c *cnStock) PrevTradeDay(day Date) (Date, error) {
+func (c *cnStock) PrevTradeDay(day base.Date) (base.Date, error) {
 	return c.OffsetTradeDay(day, -1)
 }
 
 // NextTradeDay 返回给定日期的后一个交易日。
-func (c *cnStock) NextTradeDay(day Date) (Date, error) {
+func (c *cnStock) NextTradeDay(day base.Date) (base.Date, error) {
 	return c.OffsetTradeDay(day, 1)
 }
 
-func parseCNStockDate(day Date) (Date, time.Time, error) {
-	normalizedDay, err := day.Normalize()
+func parseCNStockDate(day base.Date) (base.Date, time.Time, error) {
+	normalizedDay, err := base.NormalizeDate(day)
 	if err != nil {
 		return "", time.Time{}, err
 	}
 
-	parsedDay, err := normalizedDay.parseInLocation(cnStockLocation)
+	parsedDay, err := time.ParseInLocation(base.DateLayout, string(normalizedDay), cnStockLocation)
 	if err != nil {
-		return "", time.Time{}, err
+		return "", time.Time{}, base.NewInvalidDateFormatError()
 	}
 
 	return normalizedDay, parsedDay, nil
