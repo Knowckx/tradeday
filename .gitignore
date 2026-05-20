@@ -31,5 +31,6 @@ go.work.sum
 # .idea/
 # .vscode/
 
+# local docs
 AGENTS.md
-dev_docs/
+/_dev_docs/
