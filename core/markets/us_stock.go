@@ -2,6 +2,7 @@ package markets
 
 import (
 	"time"
+	_ "time/tzdata"
 
 	"github.com/Knowckx/tradeday/core/base"
 	"github.com/Knowckx/tradeday/core/data"
