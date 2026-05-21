@@ -253,6 +253,7 @@ var cnStockClosedDays2026 = []base.Date{
 	"2026-10-07",
 }
 
+// Deprecated: 旧的显式休市日表实现，当前已由位图实现替代，保留仅用于过渡。
 var CNStockClosedDays = buildDaysMap(
 	cnStockClosedDays2015,
 	cnStockClosedDays2016,
@@ -268,6 +269,7 @@ var CNStockClosedDays = buildDaysMap(
 	cnStockClosedDays2026,
 )
 
+// Deprecated: 旧的显式开市日表实现，当前已由位图实现替代，保留仅用于过渡。
 var CNStockOpenDays = map[base.Date]struct{}{}
 
 func buildDaysMap(yearlyDays ...[]base.Date) map[base.Date]struct{} {

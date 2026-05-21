@@ -1,8 +1,8 @@
 package data
 
 // CNStockTradeBitmaps 保存中国 A 股各年的交易日真值位图。
-var CNStockTradeBitmaps = []YearTradeBitmap{
-	{
+var CNStockTradeBitmaps = YearTradeBitmaps{
+	2015: {
 		Year: 2015,
 		Bits: [6]uint64{
 			17546252431090579952,
@@ -13,7 +13,7 @@ var CNStockTradeBitmaps = []YearTradeBitmap{
 			33522118289359,
 		},
 	},
-	{
+	2016: {
 		Year: 2016,
 		Bits: [6]uint64{
 			18010985692485549304,
@@ -24,4 +24,8 @@ var CNStockTradeBitmaps = []YearTradeBitmap{
 			34353245189095,
 		},
 	},
+}
+
+func init() {
+	CNStockTradeBitmaps.mustAlignYearKeys()
 }
