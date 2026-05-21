@@ -75,11 +75,11 @@ func main() {
 - `Date`
   - 对外统一使用的日期类型，固定格式为 `2006-01-02`
 - `Calendar`
-  - 某一类市场的交易日历实例
+  - 某一个市场的交易日历实例
 - `CalendarID`
   - 用于选择具体市场，目前包含 `CNStock` 和 `USStock`
 - `交易日位图`
-  - 底层实现，每个年份对应一份位图数据，bit=1 表示交易日，bit=0 表示非交易日
+  - 交易日历的底层实现，用户侧无感知。每个年份对应一份位图数据，bit=1 表示交易日，bit=0 表示非交易日
 
 ## API 用法
 
@@ -246,11 +246,11 @@ func main() {
 - `Date`
   - The public date type, with a fixed format of `2006-01-02`
 - `Calendar`
-  - A calendar instance for a specific market
+  - An instance of the trading calendar for a specific market
 - `CalendarID`
   - Used to choose a specific market, currently including `CNStock` and `USStock`
 - `Trading-day bitmap`
-  - The underlying implementation, where each year corresponds to a bitmap dataset; bit=1 means trading day and bit=0 means non-trading day
+  - The underlying implementation of the trading calendar, transparent to users. Each year corresponds to a bitmap dataset; bit=1 means trading day and bit=0 means non-trading day
 
 ## API Usage
 
