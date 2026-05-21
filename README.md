@@ -81,7 +81,6 @@ func main() {
 - `交易日位图`
   - 底层实现，每个年份对应一份位图数据，bit=1 表示交易日，bit=0 表示非交易日
 
-
 ## API 用法
 
 ### 创建日历
@@ -113,7 +112,7 @@ _ = next
 _ = err
 ```
 
-### 偏移交易日 
+### 偏移交易日
 
 ```go
 // 返回"2024-10-08"之后的第 5 个有效交易日
@@ -154,13 +153,11 @@ if err != nil {
 }
 ```
 
-
 ## 测试
 
 ```bash
 go test ./...
 ```
-
 
 ## 限制
 
@@ -186,28 +183,28 @@ MIT License. See [LICENSE](./LICENSE).
 
 ## English
 
-`tradeday` is an offline-capable Go trading-calendar library used to check whether a given date is a trading day. It ships with built-in trading-day data and is suitable for quant systems, trading applications, backtesting, market-data collection, and scheduled jobs.
+`tradeday` is an offline-capable Go trading-calendar library used to check whether a given date is a trading day.  
+It ships with built-in trading-day data and is suitable for quant systems, trading applications, backtesting, market-data collection, and scheduled jobs.
 
-The repository currently supports two markets with the following ranges:
+The repository currently supports two markets, with the following ranges:
 
 - `CNStock`: `2015-01-01` through `2026-12-31`
 - `USStock`: `2015-01-01` through `2026-12-31`
 
-The project uses trading-day bitmaps to store each year's data and delivers excellent query efficiency.
-
+The project uses trading-day bitmaps to store each year's data and delivers excellent query efficiency
 - Single-day trading queries are O(1)
-- Range trading queries are O(n)
+- Range trading queries are O(n).
 
 ## Features
 
-- Create calendars by market
-- Check whether a date is a trading day
-- Get the previous trading day, next trading day, or an offset trading day
-- List trading days in an inclusive date range
-- Use local bitmap data for trading-day lookup
-- Preserve real-world results for weekends, exchange holidays, and special closures
-- Provide a friendly API design that is easy to embed in Go projects
-- Work without any network calls
+- Support creating calendars by market
+- Support checking whether a given day is a trading day
+- Support getting the previous trading day, the next trading day, and an offset trading day
+- Support listing trading days in an inclusive date range
+- Trading-day checks are based on local bitmap data
+- Support real trading-day results for weekends, exchange holidays, and special closures
+- Human-friendly API design that is easy to embed in Go projects
+- Usable without any network requests
 
 ## Installation
 
@@ -247,13 +244,13 @@ func main() {
 ## Core Concepts
 
 - `Date`
-  - The public date type, always formatted as `2006-01-02`
+  - The public date type, with a fixed format of `2006-01-02`
 - `Calendar`
   - A calendar instance for a specific market
 - `CalendarID`
-  - Used to choose a market, currently `CNStock` and `USStock`
-- Trading-day bitmap
-  - Internal storage where each year is represented by bitmap data; bit=1 means trading day and bit=0 means non-trading day
+  - Used to choose a specific market, currently including `CNStock` and `USStock`
+- `Trading-day bitmap`
+  - The underlying implementation, where each year corresponds to a bitmap dataset; bit=1 means trading day and bit=0 means non-trading day
 
 ## API Usage
 
@@ -289,8 +286,8 @@ _ = err
 ### Offset by trading days
 
 ```go
-day, err := cal.OffsetTradeDay("2024-10-08", 5)
 // Return the 5th valid trading day after "2024-10-08"
+day, err := cal.OffsetTradeDay("2024-10-08", 5)
 if err != nil {
 	return
 }
@@ -327,54 +324,22 @@ if err != nil {
 }
 ```
 
-## Supported Markets
-
-| Market | Status | Range | Notes |
-| --- | --- | --- | --- |
-| `CNStock` | Supported | `2015-01-01` - `2026-12-31` | China A-share trading calendar |
-| `USStock` | Supported | `2015-01-01` - `2026-12-31` | US stock market trading calendar |
-
-## Design
-
-- The project avoids remote APIs to remove runtime network uncertainty
-- Trading-day data is prebuilt into yearly bitmaps and queried locally at runtime
-- This project uses bitmaps for trading-day queries. Single-day checks reach O(1) efficiency, while range queries are O(n)
-- `Date` is the public contract, while internal checks normalize values into `time.Time`
-- `ListTradeDays` and `OffsetTradeDay` share the same bitmap-backed data path
-- The supported range is derived from the bitmap dataset instead of hardcoded limits
-
-## Calendar Data Maintenance
-
-- When an exchange publishes the next year's trading calendar near the end of the year, the repository should be updated accordingly
-- This project does not determine suspension, temporary suspension, or intraday trading status
-- This project does not replace official exchange announcements; when special events occur, please follow the exchange's official notices
-
 ## Testing
 
 ```bash
 go test ./...
 ```
 
-## Use Cases
-
-- Check whether a specific date is a trading day
-- Decide whether a scheduled job should run
-- Filter dates for backtesting
-- Schedule market-data collection jobs
-- Perform calendar validation before trading workflows
-- Generate trading-day sequences
-
 ## Limitations
 
-- Only `CNStock` and `USStock` are built in
-- The supported range is limited to the shipped year data
-- This library does not replace official exchange announcements
-- It does not provide intraday real-time status
-- It does not determine suspension, temporary suspension, or intraday trading status
+- At the end of each year, when the exchange publishes the next year's trading calendar, the author will update it in time. Developers then need to update the package dependency manually.
+
+- This project does not determine suspension, temporary suspension, or intraday trading status
+- This project does not replace official exchange announcements; if special events occur, please follow the exchange's official notices
 
 ## Roadmap
 
-- Add more market support, such as the Hong Kong exchange
+- Add more market support, such as the Hong Kong exchange.
 - Extend the year coverage
 - Add tooling for generating calendar data
 - Add a command-line tool
