@@ -7,16 +7,16 @@ import (
 	"github.com/Knowckx/tradeday"
 )
 
-func TestCNStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
-	truthTable := loadTruthTable(t, "cn_stock_truth_table.json", tradeday.CalendarID.CNStock, cnStockTruthTableStart, cnStockTruthTableEnd)
+	truthTable := loadTruthTable(t, "us_stock_truth_table.json", tradeday.CalendarID.USStock, usStockTruthTableStart, usStockTruthTableEnd)
 
-	for day := range iterateDays(t, cnStockTruthTableStart, cnStockTruthTableEnd) {
-		wantPrev, ok := findRelativeTradeDayFromTruthTable(truthTable, day, -1, cnStockTruthTableStart, cnStockTruthTableEnd)
+	for day := range iterateDays(t, usStockTruthTableStart, usStockTruthTableEnd) {
+		wantPrev, ok := findRelativeTradeDayFromTruthTable(truthTable, day, -1, usStockTruthTableStart, usStockTruthTableEnd)
 		gotPrev, err := cal.PrevTradeDay(day)
 		if ok {
 			if err != nil {
@@ -41,7 +41,7 @@ func TestCNStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
 			}
 		}
 
-		wantNext, ok := findRelativeTradeDayFromTruthTable(truthTable, day, 1, cnStockTruthTableStart, cnStockTruthTableEnd)
+		wantNext, ok := findRelativeTradeDayFromTruthTable(truthTable, day, 1, usStockTruthTableStart, usStockTruthTableEnd)
 		gotNext, err := cal.NextTradeDay(day)
 		if ok {
 			if err != nil {
@@ -68,10 +68,10 @@ func TestCNStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
 	}
 }
 
-func TestCNStockPrevNextTradeDayInvalidInput(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockPrevNextTradeDayInvalidInput(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
 	testCases := []tradeday.Date{
@@ -94,10 +94,10 @@ func TestCNStockPrevNextTradeDayInvalidInput(t *testing.T) {
 	}
 }
 
-func TestCNStockOffsetTradeDayLargeOffset(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockOffsetTradeDayLargeOffset(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
 	t.Run("positive", func(t *testing.T) {
@@ -111,10 +111,10 @@ func TestCNStockOffsetTradeDayLargeOffset(t *testing.T) {
 	})
 }
 
-func TestCNStockOffsetTradeDayZero(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockOffsetTradeDayZero(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
 	t.Run("trade_day", func(t *testing.T) {
@@ -128,27 +128,27 @@ func TestCNStockOffsetTradeDayZero(t *testing.T) {
 	})
 
 	t.Run("non_trade_day", func(t *testing.T) {
-		got, err := cal.OffsetTradeDay("2024-10-01", 0)
+		got, err := cal.OffsetTradeDay("2024-07-04", 0)
 		assertErrorIs(t, err, tradeday.Error("invalid_offset"))
 		if got != "" {
-			t.Fatalf("OffsetTradeDay(%q, 0) = %q, want 空值", "2024-10-01", got)
+			t.Fatalf("OffsetTradeDay(%q, 0) = %q, want 空值", "2024-07-04", got)
 		}
 	})
 }
 
-func TestCNStockListTradeDays(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockListTradeDays(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
 	t.Run("single_trade_day", func(t *testing.T) {
-		got, err := cal.ListTradeDays("2024-10-01", "2024-10-08")
+		got, err := cal.ListTradeDays("2024-07-04", "2024-07-05")
 		if err != nil {
 			t.Fatalf("ListTradeDays 返回错误: %v", err)
 		}
 
-		want := []tradeday.Date{"2024-10-08"}
+		want := []tradeday.Date{"2024-07-05"}
 		if len(got) != len(want) {
 			t.Fatalf("ListTradeDays 长度 = %d, want %d", len(got), len(want))
 		}
@@ -160,7 +160,7 @@ func TestCNStockListTradeDays(t *testing.T) {
 	})
 
 	t.Run("empty_range", func(t *testing.T) {
-		got, err := cal.ListTradeDays("2024-10-01", "2024-10-01")
+		got, err := cal.ListTradeDays("2024-07-04", "2024-07-04")
 		if err != nil {
 			t.Fatalf("ListTradeDays 返回错误: %v", err)
 		}

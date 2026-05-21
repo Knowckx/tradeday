@@ -5,9 +5,9 @@ from generate_trade_bitmaps import BITMAP_SPECS, write_bitmap_file
 
 def main() -> int:
     if len(sys.argv) != 1:
-        raise SystemExit("usage: python generate_cn_stock_trade_bitmaps.py")
+        raise SystemExit("usage: python generate_us_stock_trade_bitmaps.py")
 
-    output_path = write_bitmap_file(BITMAP_SPECS["cn_stock"])
+    output_path = write_bitmap_file(BITMAP_SPECS["us_stock"])
     print(output_path)
     return 0
 

@@ -19,31 +19,8 @@ func New(calendarID string) (base.Calendar, error) {
 	case CalendarID.CNStock:
 		return markets.NewCNStock(), nil
 	case CalendarID.USStock:
-		return usStockPlaceholder{}, nil
+		return markets.NewUSStock(), nil
 	}
 
-	return nil, base.NewUnsupportedCalendarError()
-}
-
-// usStockPlaceholder 是美国交易日日历的占位实现。
-type usStockPlaceholder struct{}
-
-func (usStockPlaceholder) IsTradeDay(base.Date) (bool, error) {
-	return false, base.NewUnsupportedCalendarError()
-}
-
-func (usStockPlaceholder) PrevTradeDay(base.Date) (base.Date, error) {
-	return "", base.NewUnsupportedCalendarError()
-}
-
-func (usStockPlaceholder) NextTradeDay(base.Date) (base.Date, error) {
-	return "", base.NewUnsupportedCalendarError()
-}
-
-func (usStockPlaceholder) OffsetTradeDay(base.Date, int) (base.Date, error) {
-	return "", base.NewUnsupportedCalendarError()
-}
-
-func (usStockPlaceholder) ListTradeDays(base.Date, base.Date) ([]base.Date, error) {
 	return nil, base.NewUnsupportedCalendarError()
 }

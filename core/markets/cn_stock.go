@@ -7,12 +7,8 @@ import (
 	"github.com/Knowckx/tradeday/core/data"
 )
 
-const (
-	cnStockMinYear = 2015
-	cnStockMaxYear = 2026
-)
-
 var cnStockLocation = time.FixedZone("CST", 8*60*60)
+var cnStockMinYear, cnStockMaxYear = mustBitmapYearRange(data.CNStockTradeBitmaps)
 
 // cnStock 表示中国 A 股市场日历。
 type cnStock struct{}
@@ -22,23 +18,9 @@ func NewCNStock() base.Calendar {
 	return &cnStock{}
 }
 
-// newCNStockDate 创建 A 股市场可接受的日期对象。
-func newCNStockDate(day base.Date) (*base.CalendarDate, error) {
-	calendarDay, err := day.ToCalendarDate(cnStockLocation)
-	if err != nil {
-		return nil, err
-	}
-
-	if !calendarDay.IsSupportedYear(cnStockMinYear, cnStockMaxYear) {
-		return nil, base.NewDateOutOfRangeError()
-	}
-
-	return calendarDay, nil
-}
-
 // IsTradeDay 判断给定日期是否为交易日。
 func (c *cnStock) IsTradeDay(day base.Date) (bool, error) {
-	calendarDay, err := newCNStockDate(day)
+	calendarDay, err := newMarketDate(day, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return false, err
 	}
@@ -65,7 +47,7 @@ func (c *cnStock) NextTradeDay(day base.Date) (base.Date, error) {
 // offset < 0 时，返回 day 之前的第 -offset 个交易日，不包含 day 当天。
 // offset == 0 时，仅当 day 当天是交易日时返回 day，否则返回 error。
 func (c *cnStock) OffsetTradeDay(day base.Date, offset int) (base.Date, error) {
-	calendarDay, err := newCNStockDate(day)
+	calendarDay, err := newMarketDate(day, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return "", err
 	}
@@ -75,12 +57,12 @@ func (c *cnStock) OffsetTradeDay(day base.Date, offset int) (base.Date, error) {
 
 // ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
 func (c *cnStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
-	startDay, err := newCNStockDate(start)
+	startDay, err := newMarketDate(start, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return nil, err
 	}
 
-	endDay, err := newCNStockDate(end)
+	endDay, err := newMarketDate(end, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return nil, err
 	}

@@ -9,25 +9,25 @@ import (
 )
 
 const (
-	cnStockTruthTableStart = "2015-01-01"
-	cnStockTruthTableEnd   = "2026-12-31"
+	usStockTruthTableStart = "2015-01-01"
+	usStockTruthTableEnd   = "2026-12-31"
 )
 
-func TestCNStockIsTradeDayAgainstTruthTable(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockIsTradeDayAgainstTruthTable(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
-	truthTable := loadTruthTable(t, "cn_stock_truth_table.json", tradeday.CalendarID.CNStock, cnStockTruthTableStart, cnStockTruthTableEnd)
-	totalDays := countDays(t, cnStockTruthTableStart, cnStockTruthTableEnd)
+	truthTable := loadTruthTable(t, "us_stock_truth_table.json", tradeday.CalendarID.USStock, usStockTruthTableStart, usStockTruthTableEnd)
+	totalDays := countDays(t, usStockTruthTableStart, usStockTruthTableEnd)
 	if len(truthTable) != totalDays {
 		t.Fatalf("真值表条数 = %d, want %d", len(truthTable), totalDays)
 	}
 
 	mismatchCount := 0
 	mismatchSamples := make([]string, 0, 20)
-	for day := range iterateDays(t, cnStockTruthTableStart, cnStockTruthTableEnd) {
+	for day := range iterateDays(t, usStockTruthTableStart, usStockTruthTableEnd) {
 		want, ok := truthTable[day]
 		if !ok {
 			t.Fatalf("真值表缺少日期 %s", day)
@@ -59,10 +59,10 @@ func TestCNStockIsTradeDayAgainstTruthTable(t *testing.T) {
 	}
 }
 
-func TestCNStockIsTradeDayInvalidInput(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
+func TestUSStockIsTradeDayInvalidInput(t *testing.T) {
+	cal, err := tradeday.New(tradeday.CalendarID.USStock)
 	if err != nil {
-		t.Fatalf("创建 A 股日历失败: %v", err)
+		t.Fatalf("创建美股日历失败: %v", err)
 	}
 
 	testCases := []tradeday.Date{

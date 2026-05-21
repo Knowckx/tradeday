@@ -333,6 +333,21 @@ func tradeDateFromYearDay(year, dayIndex int, location *time.Location) base.Date
 	return base.Date(time.Date(year, time.January, 1+dayIndex, 0, 0, 0, 0, location).Format(base.DateLayout))
 }
 
+// SupportedYearRange 返回位图数据覆盖的年份范围。
+func (bitmaps YearTradeBitmaps) SupportedYearRange() (minYear, maxYear int, ok bool) {
+	for year := range bitmaps {
+		if !ok || year < minYear {
+			minYear = year
+		}
+		if !ok || year > maxYear {
+			maxYear = year
+		}
+		ok = true
+	}
+
+	return minYear, maxYear, ok
+}
+
 func (bitmaps YearTradeBitmaps) mustAlignYearKeys() {
 	for year, bitmap := range bitmaps {
 		if bitmap.Year != year {
