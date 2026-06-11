@@ -41,9 +41,9 @@
 go get github.com/Knowckx/tradeday
 ```
 
-或者安装指定的tag
+或者安装一个指定的版本：
 ```bash
-go get github.com/Knowckx/tradeday@v1.0.1
+go get github.com/Knowckx/tradeday@v1.0.3
 ```
 
 
@@ -204,6 +204,11 @@ The project uses trading-day bitmaps to store each year's data and delivers exce
 
 ```bash
 go get github.com/Knowckx/tradeday
+```
+
+Or install a specific version:
+```bash
+go get github.com/Knowckx/tradeday@v1.0.3
 ```
 
 ## Quick Start
