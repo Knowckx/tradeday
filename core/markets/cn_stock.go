@@ -19,7 +19,7 @@ func CNCalendar() base.Calendar {
 }
 
 // IsTradeDay 判断给定日期是否为交易日。
-func (c *cnStock) IsTradeDay(day base.Date) (bool, error) {
+func (c *cnStock) IsTradeDay(day string) (bool, error) {
 	calendarDay, err := newMarketDate(day, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return false, err
@@ -33,12 +33,12 @@ func (c *cnStock) isTradeDay(day *base.CalendarDate) (bool, error) {
 }
 
 // PrevTradeDay 返回给定日期的前一个交易日。
-func (c *cnStock) PrevTradeDay(day base.Date) (base.Date, error) {
+func (c *cnStock) PrevTradeDay(day string) (string, error) {
 	return c.OffsetTradeDay(day, -1)
 }
 
 // NextTradeDay 返回给定日期的后一个交易日。
-func (c *cnStock) NextTradeDay(day base.Date) (base.Date, error) {
+func (c *cnStock) NextTradeDay(day string) (string, error) {
 	return c.OffsetTradeDay(day, 1)
 }
 
@@ -46,17 +46,22 @@ func (c *cnStock) NextTradeDay(day base.Date) (base.Date, error) {
 // offset > 0 时，返回 day 之后的第 offset 个交易日，不包含 day 当天。
 // offset < 0 时，返回 day 之前的第 -offset 个交易日，不包含 day 当天。
 // offset == 0 时，仅当 day 当天是交易日时返回 day，否则返回 error。
-func (c *cnStock) OffsetTradeDay(day base.Date, offset int) (base.Date, error) {
+func (c *cnStock) OffsetTradeDay(day string, offset int) (string, error) {
 	calendarDay, err := newMarketDate(day, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return "", err
 	}
 
-	return data.CNStockTradeBitmaps.OffsetTradeDay(calendarDay, offset)
+	targetDay, err := data.CNStockTradeBitmaps.OffsetTradeDay(calendarDay, offset)
+	if err != nil {
+		return "", err
+	}
+
+	return string(targetDay), nil
 }
 
 // ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
-func (c *cnStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
+func (c *cnStock) ListTradeDays(start, end string) ([]string, error) {
 	startDay, err := newMarketDate(start, cnStockLocation, cnStockMinYear, cnStockMaxYear)
 	if err != nil {
 		return nil, err
@@ -71,5 +76,15 @@ func (c *cnStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
 		return nil, base.NewInvalidDateRangeError()
 	}
 
-	return data.CNStockTradeBitmaps.ListTradeDays(startDay, endDay)
+	tradeDays, err := data.CNStockTradeBitmaps.ListTradeDays(startDay, endDay)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]string, len(tradeDays))
+	for i, tradeDay := range tradeDays {
+		result[i] = string(tradeDay)
+	}
+
+	return result, nil
 }

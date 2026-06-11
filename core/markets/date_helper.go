@@ -7,8 +7,8 @@ import (
 	"github.com/Knowckx/tradeday/core/data"
 )
 
-func newMarketDate(day base.Date, location *time.Location, minYear, maxYear int) (*base.CalendarDate, error) {
-	calendarDay, err := day.ToCalendarDate(location)
+func newMarketDate(day string, location *time.Location, minYear, maxYear int) (*base.CalendarDate, error) {
+	calendarDay, err := base.Date(day).ToCalendarDate(location)
 	if err != nil {
 		return nil, err
 	}

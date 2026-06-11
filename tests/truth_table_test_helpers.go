@@ -14,7 +14,7 @@ import (
 
 const dateLayout = "2006-01-02"
 
-func loadTruthTable(t *testing.T, fileName, expectedCalendarID, expectedStart, expectedEnd string) map[tradeday.Date]bool {
+func loadTruthTable(t *testing.T, fileName, expectedCalendarID, expectedStart, expectedEnd string) map[string]bool {
 	t.Helper()
 
 	type truthTableFile struct {
@@ -49,9 +49,9 @@ func loadTruthTable(t *testing.T, fileName, expectedCalendarID, expectedStart, e
 		)
 	}
 
-	truthTable := make(map[tradeday.Date]bool, len(file.Days))
+	truthTable := make(map[string]bool, len(file.Days))
 	for day, isTradeDay := range file.Days {
-		truthTable[tradeday.Date(day)] = isTradeDay
+		truthTable[day] = isTradeDay
 	}
 
 	return truthTable
@@ -79,7 +79,7 @@ func countDays(t *testing.T, start, end string) int {
 	return days
 }
 
-func iterateDays(t *testing.T, start, end string) <-chan tradeday.Date {
+func iterateDays(t *testing.T, start, end string) <-chan string {
 	t.Helper()
 
 	startDay, err := time.Parse(dateLayout, start)
@@ -92,11 +92,11 @@ func iterateDays(t *testing.T, start, end string) <-chan tradeday.Date {
 		t.Fatalf("解析结束日期失败: %v", err)
 	}
 
-	ch := make(chan tradeday.Date)
+	ch := make(chan string)
 	go func() {
 		defer close(ch)
 		for day := startDay; !day.After(endDay); day = day.AddDate(0, 0, 1) {
-			ch <- tradeday.Date(day.Format(dateLayout))
+			ch <- day.Format(dateLayout)
 		}
 	}()
 
@@ -104,12 +104,12 @@ func iterateDays(t *testing.T, start, end string) <-chan tradeday.Date {
 }
 
 func findRelativeTradeDayFromTruthTable(
-	truthTable map[tradeday.Date]bool,
-	day tradeday.Date,
+	truthTable map[string]bool,
+	day string,
 	direction int,
 	start,
 	end string,
-) (tradeday.Date, bool) {
+) (string, bool) {
 	currentDay, err := time.Parse(dateLayout, string(day))
 	if err != nil {
 		return "", false
@@ -127,7 +127,7 @@ func findRelativeTradeDayFromTruthTable(
 
 	if direction < 0 {
 		for currentDay = currentDay.AddDate(0, 0, -1); !currentDay.Before(startDay); currentDay = currentDay.AddDate(0, 0, -1) {
-			candidate := tradeday.Date(currentDay.Format(dateLayout))
+			candidate := currentDay.Format(dateLayout)
 			if truthTable[candidate] {
 				return candidate, true
 			}
@@ -137,7 +137,7 @@ func findRelativeTradeDayFromTruthTable(
 	}
 
 	for currentDay = currentDay.AddDate(0, 0, 1); !currentDay.After(endDay); currentDay = currentDay.AddDate(0, 0, 1) {
-		candidate := tradeday.Date(currentDay.Format(dateLayout))
+		candidate := currentDay.Format(dateLayout)
 		if truthTable[candidate] {
 			return candidate, true
 		}
@@ -146,7 +146,7 @@ func findRelativeTradeDayFromTruthTable(
 	return "", false
 }
 
-func wantErrorForInvalidInput(day tradeday.Date) error {
+func wantErrorForInvalidInput(day string) error {
 	if day == "2027-01-01" {
 		return tradeday.Error("date_out_of_range")
 	}

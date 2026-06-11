@@ -29,7 +29,7 @@ func USCalendar() base.Calendar {
 }
 
 // IsTradeDay 判断给定日期是否为交易日。
-func (c *usStock) IsTradeDay(day base.Date) (bool, error) {
+func (c *usStock) IsTradeDay(day string) (bool, error) {
 	calendarDay, err := newMarketDate(day, usStockLocation, usStockMinYear, usStockMaxYear)
 	if err != nil {
 		return false, err
@@ -43,27 +43,32 @@ func (c *usStock) isTradeDay(day *base.CalendarDate) (bool, error) {
 }
 
 // PrevTradeDay 返回给定日期的前一个交易日。
-func (c *usStock) PrevTradeDay(day base.Date) (base.Date, error) {
+func (c *usStock) PrevTradeDay(day string) (string, error) {
 	return c.OffsetTradeDay(day, -1)
 }
 
 // NextTradeDay 返回给定日期的后一个交易日。
-func (c *usStock) NextTradeDay(day base.Date) (base.Date, error) {
+func (c *usStock) NextTradeDay(day string) (string, error) {
 	return c.OffsetTradeDay(day, 1)
 }
 
 // OffsetTradeDay 返回交易日偏移结果。
-func (c *usStock) OffsetTradeDay(day base.Date, offset int) (base.Date, error) {
+func (c *usStock) OffsetTradeDay(day string, offset int) (string, error) {
 	calendarDay, err := newMarketDate(day, usStockLocation, usStockMinYear, usStockMaxYear)
 	if err != nil {
 		return "", err
 	}
 
-	return data.USStockTradeBitmaps.OffsetTradeDay(calendarDay, offset)
+	targetDay, err := data.USStockTradeBitmaps.OffsetTradeDay(calendarDay, offset)
+	if err != nil {
+		return "", err
+	}
+
+	return string(targetDay), nil
 }
 
 // ListTradeDays 返回闭区间 [start, end] 内的交易日列表。
-func (c *usStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
+func (c *usStock) ListTradeDays(start, end string) ([]string, error) {
 	startDay, err := newMarketDate(start, usStockLocation, usStockMinYear, usStockMaxYear)
 	if err != nil {
 		return nil, err
@@ -78,5 +83,15 @@ func (c *usStock) ListTradeDays(start, end base.Date) ([]base.Date, error) {
 		return nil, base.NewInvalidDateRangeError()
 	}
 
-	return data.USStockTradeBitmaps.ListTradeDays(startDay, endDay)
+	tradeDays, err := data.USStockTradeBitmaps.ListTradeDays(startDay, endDay)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]string, len(tradeDays))
+	for i, tradeDay := range tradeDays {
+		result[i] = string(tradeDay)
+	}
+
+	return result, nil
 }

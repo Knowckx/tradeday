@@ -58,7 +58,7 @@ func TestUSStockIsTradeDayAgainstTruthTable(t *testing.T) {
 
 func TestUSStockIsTradeDayInvalidInput(t *testing.T) {
 	cal := tradeday.USCalendar()
-	testCases := []tradeday.Date{
+	testCases := []string{
 		"2024-1-02",
 		"2024/01/02",
 		"2024-01-02 ",

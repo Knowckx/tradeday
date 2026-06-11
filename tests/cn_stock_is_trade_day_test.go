@@ -58,7 +58,7 @@ func TestCNStockIsTradeDayAgainstTruthTable(t *testing.T) {
 
 func TestCNStockIsTradeDayInvalidInput(t *testing.T) {
 	cal := tradeday.CNCalendar()
-	testCases := []tradeday.Date{
+	testCases := []string{
 		"2024-1-02",
 		"2024/01/02",
 		"2024-01-02 ",
@@ -66,7 +66,7 @@ func TestCNStockIsTradeDayInvalidInput(t *testing.T) {
 	}
 
 	for _, day := range testCases {
-		t.Run(string(day), func(t *testing.T) {
+		t.Run(day, func(t *testing.T) {
 			_, err := cal.IsTradeDay(day)
 			if err == nil {
 				t.Fatalf("IsTradeDay(%q) 未返回错误", day)

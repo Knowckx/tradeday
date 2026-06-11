@@ -6,7 +6,6 @@ import (
 )
 
 type Error = base.Error
-type Date = base.Date
 type Calendar = base.Calendar
 
 var CNCalendar = markets.CNCalendar

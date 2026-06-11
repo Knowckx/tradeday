@@ -41,9 +41,15 @@
 go get github.com/Knowckx/tradeday
 ```
 
+或者安装指定的tag
+```bash
+go get github.com/Knowckx/tradeday@v1.0.1
+```
+
+
 ## 快速开始
 
-`Date` 是一个以 `string` 为底层类型的日期类型，因此可以直接传入形如 `"2024-10-08"` 的字符串字面量。
+对外日期参数统一直接使用 `string`，固定格式为 `"2006-01-02"`。
 
 ```go
 package main
@@ -68,8 +74,6 @@ func main() {
 
 ## 核心概念
 
-- `Date`
-  - 对外统一使用的日期类型，固定格式为 `2006-01-02`
 - `Calendar`
   - 某一个市场的交易日历实例
 - `交易日位图`
@@ -204,7 +208,7 @@ go get github.com/Knowckx/tradeday
 
 ## Quick Start
 
-`Date` is a string-backed date type, so you can pass a string literal such as `"2024-10-08"` directly.
+Public date parameters use plain `string` in the `"2006-01-02"` format.
 
 ```go
 package main
@@ -229,8 +233,6 @@ func main() {
 
 ## Core Concepts
 
-- `Date`
-  - The public date type, with a fixed format of `2006-01-02`
 - `Calendar`
   - An instance of the trading calendar for a specific market
 - `Trading-day bitmap`

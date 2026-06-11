@@ -66,7 +66,7 @@ func TestUSStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
 
 func TestUSStockPrevNextTradeDayInvalidInput(t *testing.T) {
 	cal := tradeday.USCalendar()
-	testCases := []tradeday.Date{
+	testCases := []string{
 		"2024-1-02",
 		"2024/01/02",
 		"2024-01-02 ",
@@ -128,7 +128,7 @@ func TestUSStockListTradeDays(t *testing.T) {
 			t.Fatalf("ListTradeDays 返回错误: %v", err)
 		}
 
-		want := []tradeday.Date{"2024-07-05"}
+		want := []string{"2024-07-05"}
 		if len(got) != len(want) {
 			t.Fatalf("ListTradeDays 长度 = %d, want %d", len(got), len(want))
 		}
