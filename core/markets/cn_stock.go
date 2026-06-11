@@ -13,8 +13,8 @@ var cnStockMinYear, cnStockMaxYear = mustBitmapYearRange(data.CNStockTradeBitmap
 // cnStock 表示中国 A 股市场日历。
 type cnStock struct{}
 
-// NewCNStock 创建中国 A 股市场日历。
-func NewCNStock() base.Calendar {
+// CNCalendar 创建中国 A 股市场日历。
+func CNCalendar() base.Calendar {
 	return &cnStock{}
 }
 

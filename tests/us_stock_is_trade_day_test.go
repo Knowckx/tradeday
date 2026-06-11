@@ -9,17 +9,14 @@ import (
 )
 
 const (
+	usStockCalendarID      = "us_stock"
 	usStockTruthTableStart = "2015-01-01"
 	usStockTruthTableEnd   = "2026-12-31"
 )
 
 func TestUSStockIsTradeDayAgainstTruthTable(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
-	truthTable := loadTruthTable(t, "us_stock_truth_table.json", tradeday.CalendarID.USStock, usStockTruthTableStart, usStockTruthTableEnd)
+	cal := tradeday.USCalendar()
+	truthTable := loadTruthTable(t, "us_stock_truth_table.json", usStockCalendarID, usStockTruthTableStart, usStockTruthTableEnd)
 	totalDays := countDays(t, usStockTruthTableStart, usStockTruthTableEnd)
 	if len(truthTable) != totalDays {
 		t.Fatalf("真值表条数 = %d, want %d", len(truthTable), totalDays)
@@ -60,11 +57,7 @@ func TestUSStockIsTradeDayAgainstTruthTable(t *testing.T) {
 }
 
 func TestUSStockIsTradeDayInvalidInput(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
+	cal := tradeday.USCalendar()
 	testCases := []tradeday.Date{
 		"2024-1-02",
 		"2024/01/02",

@@ -23,8 +23,8 @@ func mustLoadLocation(name string) *time.Location {
 	return location
 }
 
-// NewUSStock 创建美国美股市场日历。
-func NewUSStock() base.Calendar {
+// USCalendar 创建美国美股市场日历。
+func USCalendar() base.Calendar {
 	return &usStock{}
 }
 

@@ -8,12 +8,8 @@ import (
 )
 
 func TestUSStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
-	truthTable := loadTruthTable(t, "us_stock_truth_table.json", tradeday.CalendarID.USStock, usStockTruthTableStart, usStockTruthTableEnd)
+	cal := tradeday.USCalendar()
+	truthTable := loadTruthTable(t, "us_stock_truth_table.json", usStockCalendarID, usStockTruthTableStart, usStockTruthTableEnd)
 
 	for day := range iterateDays(t, usStockTruthTableStart, usStockTruthTableEnd) {
 		wantPrev, ok := findRelativeTradeDayFromTruthTable(truthTable, day, -1, usStockTruthTableStart, usStockTruthTableEnd)
@@ -69,11 +65,7 @@ func TestUSStockPrevNextTradeDayAgainstTruthTable(t *testing.T) {
 }
 
 func TestUSStockPrevNextTradeDayInvalidInput(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
+	cal := tradeday.USCalendar()
 	testCases := []tradeday.Date{
 		"2024-1-02",
 		"2024/01/02",
@@ -95,11 +87,7 @@ func TestUSStockPrevNextTradeDayInvalidInput(t *testing.T) {
 }
 
 func TestUSStockOffsetTradeDayLargeOffset(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
+	cal := tradeday.USCalendar()
 	t.Run("positive", func(t *testing.T) {
 		_, err := cal.OffsetTradeDay("2024-01-02", 1000)
 		assertErrorIs(t, err, tradeday.Error("date_out_of_range"))
@@ -112,11 +100,7 @@ func TestUSStockOffsetTradeDayLargeOffset(t *testing.T) {
 }
 
 func TestUSStockOffsetTradeDayZero(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
+	cal := tradeday.USCalendar()
 	t.Run("trade_day", func(t *testing.T) {
 		got, err := cal.OffsetTradeDay("2024-10-08", 0)
 		if err != nil {
@@ -137,11 +121,7 @@ func TestUSStockOffsetTradeDayZero(t *testing.T) {
 }
 
 func TestUSStockListTradeDays(t *testing.T) {
-	cal, err := tradeday.New(tradeday.CalendarID.USStock)
-	if err != nil {
-		t.Fatalf("创建美股日历失败: %v", err)
-	}
-
+	cal := tradeday.USCalendar()
 	t.Run("single_trade_day", func(t *testing.T) {
 		got, err := cal.ListTradeDays("2024-07-04", "2024-07-05")
 		if err != nil {

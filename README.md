@@ -17,8 +17,8 @@
 
 当前仓库已支持两个市场，支持范围分别为：
 
-- `CNStock`：`2015-01-01` 到 `2026-12-31`
-- `USStock`：`2015-01-01` 到 `2026-12-31`
+- `中国A股交易日历`：`2015-01-01` 到 `2026-12-31`
+- `美股交易日历`：`2015-01-01` 到 `2026-12-31`
 
 项目底层使用`交易日位图`来保存每年的交易日数据，具有极佳的查询效率
 - 单个交易日查询实现`O(1)`效率
@@ -56,11 +56,7 @@ import (
 )
 
 func main() {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	cal := tradeday.CNCalendar()
 	ok, err := cal.IsTradeDay("2024-10-08")
 	if err != nil {
 		log.Fatal(err)
@@ -76,8 +72,6 @@ func main() {
   - 对外统一使用的日期类型，固定格式为 `2006-01-02`
 - `Calendar`
   - 某一个市场的交易日历实例
-- `CalendarID`
-  - 用于选择具体市场，目前包含 `CNStock` 和 `USStock`
 - `交易日位图`
   - 交易日历的底层实现，用户侧无感知。每个年份对应一份位图数据，bit=1 表示交易日，bit=0 表示非交易日
 
@@ -86,10 +80,7 @@ func main() {
 ### 创建日历
 
 ```go
-cal, err := tradeday.New(tradeday.CalendarID.USStock)
-if err != nil {
-	return
-}
+cal := tradeday.USCalendar()
 ```
 
 ### 判断交易日
@@ -148,7 +139,6 @@ if err != nil {
 	case errors.Is(err, tradeday.ErrorDateOutOfRange):
 	case errors.Is(err, tradeday.ErrorInvalidDateRange):
 	case errors.Is(err, tradeday.ErrorInvalidOffset):
-	case errors.Is(err, tradeday.ErrorUnsupportedCalendar):
 	}
 }
 ```
@@ -227,11 +217,7 @@ import (
 )
 
 func main() {
-	cal, err := tradeday.New(tradeday.CalendarID.CNStock)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	cal := tradeday.CNCalendar()
 	ok, err := cal.IsTradeDay("2024-10-08")
 	if err != nil {
 		log.Fatal(err)
@@ -247,8 +233,6 @@ func main() {
   - The public date type, with a fixed format of `2006-01-02`
 - `Calendar`
   - An instance of the trading calendar for a specific market
-- `CalendarID`
-  - Used to choose a specific market, currently including `CNStock` and `USStock`
 - `Trading-day bitmap`
   - The underlying implementation of the trading calendar, transparent to users. Each year corresponds to a bitmap dataset; bit=1 means trading day and bit=0 means non-trading day
 
@@ -257,10 +241,7 @@ func main() {
 ### Create a calendar
 
 ```go
-cal, err := tradeday.New(tradeday.CalendarID.USStock)
-if err != nil {
-	return
-}
+cal := tradeday.USCalendar()
 ```
 
 ### Check whether a trading day
@@ -319,7 +300,6 @@ if err != nil {
 	case errors.Is(err, tradeday.ErrorDateOutOfRange):
 	case errors.Is(err, tradeday.ErrorInvalidDateRange):
 	case errors.Is(err, tradeday.ErrorInvalidOffset):
-	case errors.Is(err, tradeday.ErrorUnsupportedCalendar):
 	}
 }
 ```
